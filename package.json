@@ -1,0 +1,17 @@
+{
+  "name": "tgbot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bot.js",
+  "dependencies": {
+    "moment": "^2.20.1",
+    "telegraf": "^3.17.8",
+    "winston": "^2.4.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Aydar <zreacta@gmail.com>",
+  "license": "ISC"
+}
