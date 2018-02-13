@@ -1,11 +1,13 @@
 var config = {};
 
-/* logging settings */
+config.botToken = '450501214:AAEYNUBus3yB-bTBFowPcAOiOUSKfecXXHU';
+config.botDomain = 'chathuac_bot';
+config.inviteLink = 'https://t.me/joinchat/H6k7KQ8fMExCeHF5QCyY9A';
 
 config.logDateFormat = 'DD-MM-YYYY hh:mm:ss';
-config.logFile = 'bot.log';
+config.logFile = 'logs/bot.log';
 config.logLevel = 'info';
 
-config.botToken = process.env.BOT_TOKEN || '470912859:AAE_kgtGhN4CTytMj2ScYYfZ8n9YG3Dh4xE';
+config.dbDir = 'db';
 
 module.exports = config;

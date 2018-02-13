@@ -1,38 +1,13 @@
 const config = require('./config');
-const moment = require('moment');
+const logger = require('./logger');
+const db = require('./db');
+const lc = require('./locale');
+
+const util = require('util'); 
+
 const telegraf = require('telegraf');
-const util = require('util');
-const winston = require('winston');
-
-/* Logging part */
-
-const winstonCfg = winston.config;
-const dateFormat = moment().format(config.logDateFormat).trim();
-
-const logger = new winston.Logger({
-    level: config.logLevel,
-    transports: [
-        new winston.transports.File({filename: config.logFile}),
-        new winston.transports.Console({
-            timestamp: dateFormat,
-            formatter: function(options) {
-                return '[{0}] [{1}]: {2}'.format(
-                    options.timestamp,
-                    winstonCfg.colorize(options.level, options.level.toUpperCase()),
-                    options.message ? options.message : 'No message');
-            }
-        })
-    ]
-});
-
-String.prototype.format = function(){
-    var args = arguments;
-    return this.replace(/\{(\d+)\}/g, function(m,n){
-        return args[n] ? args[n] : m;
-    });
-};
-
-/* end of Logging part */
+const extra = require('telegraf/extra');
+const markup = require('telegraf/markup');
 
 /* signal handling */
 
@@ -57,27 +32,78 @@ bot.catch((err) => {
 
 bot.start((ctx) => {
     logger.log('info', 'started: %d', ctx.from.id);
-    return ctx.reply('Welcome!');
+    return ctx.reply(lc.start);
 });
 
-bot.command('invoice', (ctx) => {
-    ctx.reply('something here coming soon!');
-})
+function sendInvite(ctx) {
+    var from = db.find(ctx.from);
 
-bot.on('text', async (ctx) => {
-    var id = ctx.from.id;
+    const e = extra.markup(markup.inlineKeyboard([
+        markup.urlButton(lc.button, config.inviteLink)
+    ]));
+    e.caption = 'caption text';
 
-    if (ctx.chat) {
-        id = ctx.chat.id;
+    var repliedMessage = null;
+    if (ctx.chat.id < 0) {
+        repliedMessage = extra.inReplyTo(ctx.message.message_id);
+    };
+
+    if (from == undefined || from.isPaid != true) {
+        return ctx.reply(lc.notPaid, repliedMessage);
     }
 
-    logger.log('info', 'message from %d, text: %s', ctx.from.id, ctx.message);
+    if (from.isPaid) {
+        return ctx.telegram.sendMessage(ctx.from.id, lc.linkMsg, e);
+    }
+};
+
+function replyTo(ctx, message) {
+    ctx.reply(message, extra.inReplyTo(ctx.message.message_id));
+}
+
+bot.command(['pay', 'pay@{0}'.format(config.botDomain)], (ctx) => {
+    const user = db.find(ctx.from);
+
+    if (user !== undefined && user.isPaid) {
+        if (ctx.chat.id < 0) {
+            return replyTo(ctx, lc.alreadyPaid);
+        } else {
+            return ctx.reply(lc.alreadyPaid);
+        }
+    }
+
+    db.save(ctx.from);
+    db.update(ctx.from, {isPaid: true});
+
+    if (ctx.chat.id < 0) {
+        replyTo(ctx, lc.paySuccess);
+    }
+
+    return sendInvite(ctx);
+});
+
+bot.command(['invite', 'invite@{0}'.format(config.botDomain)], (ctx) => {
+    if (ctx.chat.id < 0) {
+        replyTo(ctx, lc.warning);
+    }
+    
+    return sendInvite(ctx);
+});
+
+bot.on('text', (ctx) => {
+    var id = ctx.chat.id;
+    var repliedMessage = null;
+
+    if (id < 0) {
+        repliedMessage = extra.inReplyTo(ctx.message.message_id);
+    }
+
     try {
-        await ctx.telegram.sendCopy(ctx.from.id, ctx.message);
+        return ctx.telegram.sendMessage(id, lc.splash, repliedMessage);
     } catch (err) {
         logger.log('error', err.message);
     }
-})
+});
 
 //bot.command('help', (ctx) => ctx.reply('Try send a sticker!'));
 //bot.hears('hi', (ctx) => ctx.reply('Hey there!'));
