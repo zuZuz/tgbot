@@ -1,9 +1,7 @@
-var config = require('./config');
 var JsonDB = require('node-json-db');
 
-var dbs = new JsonDB('db/users.json', true, false);
+var dbs = new JsonDB('users.json', true, false);
 var db = {};
-dbs.push('/', {});
 
 db.save = (user) => {
     dbs.push('/' + user.id.toString(), {id: user.id, isPaid: false});

@@ -5,9 +5,7 @@ config.botDomain = 'chathuac_bot';
 config.inviteLink = 'https://t.me/joinchat/H6k7KQ8fMExCeHF5QCyY9A';
 
 config.logDateFormat = 'DD-MM-YYYY hh:mm:ss';
-config.logFile = 'logs/bot.log';
+config.logFile = 'bot.log';
 config.logLevel = 'info';
-
-config.dbDir = 'db';
 
 module.exports = config;
