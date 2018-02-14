@@ -23,4 +23,11 @@ locale.alreadyPaid = 'You already paid';
 /* стандартное сообщение */
 locale.splash = "Please use commands /pay or /invite";
 
+/* 
+ * сообщение с ссылкой на оплату 
+ * {0} - ссылка 
+ */
+ 
+locale.invoiceMessage = 'Your invoice link:\n{0}\nPlease pay by link. You will get private message from bot after pay.\n' + locale.warning;
+
 module.exports = locale;

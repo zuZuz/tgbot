@@ -8,6 +8,7 @@ const util = require('util');
 const telegraf = require('telegraf');
 const extra = require('telegraf/extra');
 const markup = require('telegraf/markup');
+const http = require('http');
 
 /* signal handling */
 
@@ -35,36 +36,29 @@ bot.start((ctx) => {
     return ctx.reply(lc.start);
 });
 
-function sendInvite(ctx) {
-    var from = db.find(ctx.from);
+function sendInvite(id) {
+    var from = db.find(id);
 
     const e = extra.markup(markup.inlineKeyboard([
         markup.urlButton(lc.button, config.inviteLink)
     ]));
-    e.caption = 'caption text';
+    e.caption = 'Invite Link';
 
-    var repliedMessage = null;
-    if (ctx.chat.id < 0) {
-        repliedMessage = extra.inReplyTo(ctx.message.message_id);
-    };
-
-    if (from == undefined || from.isPaid != true) {
-        return ctx.reply(lc.notPaid, repliedMessage);
-    }
-
-    if (from.isPaid) {
-        return ctx.telegram.sendMessage(ctx.from.id, lc.linkMsg, e);
+    if (from.is_paid) {
+        return bot.telegram.sendMessage(id, lc.linkMsg, e);
+    } else {
+        return bot.telegram.sendMessage(id, lc.notPaid);
     }
 };
 
 function replyTo(ctx, message) {
-    ctx.reply(message, extra.inReplyTo(ctx.message.message_id));
+    return ctx.reply(message, extra.inReplyTo(ctx.message.message_id));
 }
 
 bot.command(['pay', 'pay@{0}'.format(config.botDomain)], (ctx) => {
-    const user = db.find(ctx.from);
+    const user = db.find(ctx.from.id);
 
-    if (user !== undefined && user.isPaid) {
+    if (user !== undefined && user.is_paid) {
         if (ctx.chat.id < 0) {
             return replyTo(ctx, lc.alreadyPaid);
         } else {
@@ -72,14 +66,9 @@ bot.command(['pay', 'pay@{0}'.format(config.botDomain)], (ctx) => {
         }
     }
 
-    db.save(ctx.from);
-    db.update(ctx.from, {isPaid: true});
-
-    if (ctx.chat.id < 0) {
-        replyTo(ctx, lc.paySuccess);
-    }
-
-    return sendInvite(ctx);
+    db.save(ctx.from.id);
+    return replyTo(ctx, lc.invoiceMessage.format(
+        config.invoiceLink.format(ctx.from.id)));
 });
 
 bot.command(['invite', 'invite@{0}'.format(config.botDomain)], (ctx) => {
@@ -87,7 +76,7 @@ bot.command(['invite', 'invite@{0}'.format(config.botDomain)], (ctx) => {
         replyTo(ctx, lc.warning);
     }
     
-    return sendInvite(ctx);
+    return sendInvite(ctx.from.id);
 });
 
 bot.on('text', (ctx) => {
@@ -97,16 +86,19 @@ bot.on('text', (ctx) => {
     if (id < 0) {
         repliedMessage = extra.inReplyTo(ctx.message.message_id);
     }
-
-    try {
-        return ctx.telegram.sendMessage(id, lc.splash, repliedMessage);
-    } catch (err) {
-        logger.log('error', err.message);
-    }
+    return ctx.telegram.sendMessage(id, lc.splash, repliedMessage);
 });
 
-//bot.command('help', (ctx) => ctx.reply('Try send a sticker!'));
-//bot.hears('hi', (ctx) => ctx.reply('Hey there!'));
-//bot.hears('/bye/i', (ctx) => ctx.reply('Bye-bye!'));
-//bot.on('sticker', (ctx) => ctx.reply('👍'));
+http.createServer((req, res) => {
+    var params = req.url.split('/');
+    var id = parseInt(params[1]);
+
+    if (params[2] == config.httpToken && !isNaN(id)) {
+        db.update(id, true);
+        sendInvite(id);
+    }
+
+    res.end();
+}).listen(config.httpPort);
+
 bot.startPolling();
