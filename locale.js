@@ -4,30 +4,30 @@ const locale = {};
 locale.start = "Welcome!\nYou're new";
 
 /* текст на кнопке */
-locale.button = "❤ Click me ❤";
+locale.button = "❤ Клик ❤";
 
 /* сообщение, если ещё не оплачено */
-locale.notPaid = "You haven't paid yet";
+locale.notPaid = "Вы ещё не оплатили доступ";
 
 /* сообщение, с которым будет отправлена кнопка */
-locale.linkMsg = "Your invite link";
+locale.linkMsg = "Ваш инвайт";
 
 /* предупреждение о том, что пользователь должен разрешить писать боту */
-locale.warning = "Warning: you need to send /start so that the bot can send you a message";
+locale.warning = "Сообщение с инвайтом будет отправлено в лс. Если сообщение после оплаты не пришло, отправьте боту `/start` и повторите команду";
 
 /* сообщение после успешной оплаты */
-locale.paySuccess = "You paid successfully!\n" + locale.warning;
+locale.paySuccess = "Вы успешно оплатили доступ\n" + locale.warning;
 
-locale.alreadyPaid = 'You already paid';
+locale.alreadyPaid = 'Вы уже оплатили доступ';
 
 /* стандартное сообщение */
-locale.splash = "Please use commands /pay or /invite";
+locale.splash = "Пожалуйста, используйте команды /pay или /invite";
 
 /* 
  * сообщение с ссылкой на оплату 
  * {0} - ссылка 
  */
  
-locale.invoiceMessage = 'Your invoice link:\n{0}\nPlease pay by link. You will get private message from bot after pay.\n' + locale.warning;
+locale.invoiceMessage = 'Ссылка для оплаты:\n{0}\nВы будете перенаправлены на Яндекс.кассу для оплаты.\n' + locale.warning;
 
 module.exports = locale;

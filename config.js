@@ -11,12 +11,12 @@ config.logLevel = 'info';
 
 config.invoiceLink = 'https://livefood.store/redir.php?id={0}';
 
-config.dbHost = 'mysql.livefood.myjino.ru';
-config.dbUser = 'livefood';
-config.dbPass = '3Pqeuk6UT9';
-config.dbName = 'livefood';
+config.dbHost = '176.57.208.72';
+config.dbUser = 'responder';
+config.dbPass = 'YOaXicDdwxa4J68n';
+config.dbName = 'responder';
 
-config.httpToken = 'token123456789';
+config.httpToken = 'Gh75fe1r23';
 config.httpPort = 8080;
 
 module.exports = config;

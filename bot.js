@@ -1,9 +1,10 @@
 const config = require('./config');
+const utils = require('./utils');
 const logger = require('./logger');
 const db = require('./db');
 const lc = require('./locale');
+const util = require('./utils'); 
 
-const util = require('util'); 
 
 const telegraf = require('telegraf');
 const extra = require('telegraf/extra');
@@ -13,7 +14,8 @@ const http = require('http');
 /* signal handling */
 
 function handle() {
-    logger.log('info', 'terminating bot');
+    logger.info('terminating bot');
+    db.end();
     bot.stop();
     process.exit();
 };
@@ -28,27 +30,34 @@ process.on('SIGQUIT', handle);
 const bot = new telegraf(config.botToken);
 
 bot.catch((err) => {
-    logger.log('error', err.stack);
+    logger.error(err.message);
 });
 
 bot.start((ctx) => {
-    logger.log('info', 'started: %d', ctx.from.id);
+    logger.info('started: %d', ctx.from.id);
     return ctx.reply(lc.start);
 });
 
 function sendInvite(id) {
-    var from = db.find(id);
+    db.find(id, (err, rows) => {
+        if (err) {
+            logger.error(err.message);
+            return;
+        }
 
-    const e = extra.markup(markup.inlineKeyboard([
-        markup.urlButton(lc.button, config.inviteLink)
-    ]));
-    e.caption = 'Invite Link';
+        let from = rows[0];
 
-    if (from.is_paid) {
-        return bot.telegram.sendMessage(id, lc.linkMsg, e);
-    } else {
-        return bot.telegram.sendMessage(id, lc.notPaid);
-    }
+        const e = extra.markup(markup.inlineKeyboard([
+            markup.urlButton(lc.button, config.inviteLink)
+        ]));
+        e.caption = 'Invite Link';
+
+        if (from !== undefined && from.is_paid) {
+            return bot.telegram.sendMessage(id, lc.linkMsg, e);
+        } else {
+            return bot.telegram.sendMessage(id, lc.notPaid);
+        }
+    });
 };
 
 function replyTo(ctx, message) {
@@ -56,19 +65,34 @@ function replyTo(ctx, message) {
 }
 
 bot.command(['pay', 'pay@{0}'.format(config.botDomain)], (ctx) => {
-    const user = db.find(ctx.from.id);
-
-    if (user !== undefined && user.is_paid) {
-        if (ctx.chat.id < 0) {
-            return replyTo(ctx, lc.alreadyPaid);
-        } else {
-            return ctx.reply(lc.alreadyPaid);
+    db.find(ctx.from.id, (err, rows) => {
+        if (err) {
+            logger.error(err.message);
+            return;
         }
-    }
 
-    db.save(ctx.from.id);
-    return replyTo(ctx, lc.invoiceMessage.format(
-        config.invoiceLink.format(ctx.from.id)));
+        let user = rows[0];
+
+        if (user !== undefined && user.is_paid) {
+            if (ctx.chat.id < 0) {
+                return replyTo(ctx, lc.alreadyPaid);
+            } else {
+                return ctx.reply(lc.alreadyPaid);
+            }
+        }
+
+        if (user == undefined) {
+            db.save(ctx.from.id, (err, rows) => {
+                if (err) {
+                    logger.error(err.message);
+                    return;
+                }
+            });
+        }
+
+        return replyTo(ctx, lc.invoiceMessage.format(
+            config.invoiceLink.format(ctx.from.id)));
+    });
 });
 
 bot.command(['invite', 'invite@{0}'.format(config.botDomain)], (ctx) => {
@@ -94,11 +118,24 @@ http.createServer((req, res) => {
     var id = parseInt(params[1]);
 
     if (params[2] == config.httpToken && !isNaN(id)) {
-        db.update(id, true);
-        sendInvite(id);
+        db.update(id, true, (err, rows) => {
+            if (err) {
+                logger.error(err.message);
+                return;
+            }
+
+            sendInvite(id);
+        });
     }
 
     res.end();
 }).listen(config.httpPort);
 
 bot.startPolling();
+/*db.connect(function (err) {
+    if (err) {
+        logger.error(err.message);
+        return;
+    }
+
+}); */

@@ -1,7 +1,7 @@
 var config = require('./config');
-var mysql = require('sync-mysql');
+var mysql = require('mysql');
 
-var con = new mysql ({
+var con = new mysql.createConnection({
     host: config.dbHost,
     user: config.dbUser,
     password: config.dbPass,
@@ -10,21 +10,15 @@ var con = new mysql ({
 
 var db = {};
 
-db.find = (id) => {
+db.find = (id, callback) => {
     var res = con.query(
         'SELECT `id`, `is_paid` FROM `tlgrm_users` WHERE `id` = ?', 
         [id],
-        (err, res, f) => {
-            if (err) {
-                throw err;
-            } 
-        }
+        callback
     );
-
-    return res[0];
 };
 
-db.save = (id) => {
+db.save = (id, callback) => {
 
     if (db.find(id) != undefined) {
         return;
@@ -36,16 +30,25 @@ db.save = (id) => {
     );
 };
 
-db.update = (id, is_paid) => {
+db.update = (id, is_paid, callback) => {
     con.query(
         'UPDATE `tlgrm_users` SET `is_paid` = ? WHERE `id` = ?',
         [is_paid, id],
-        (err, res, f) => {
-            if (err) {
-                throw err;
-            }
-        }
+        callback
     );
 };
 
+setInterval(() => {
+    con.query(
+        'SELECT 1',
+        (err, rows) => {
+            if (err) {
+                logger.error(err.message);
+            }
+        }
+    )
+}, 60000);
+
+db.connect = con.connect;
+db.end = () => con.end();
 module.exports = db;

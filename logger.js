@@ -1,3 +1,4 @@
+const utils = require('./utils');
 const config = require('./config');
 const moment = require('moment');
 const winston = require('winston');
@@ -21,11 +22,13 @@ const logger = new winston.Logger({
     ]
 });
 
-String.prototype.format = function(){
-    var args = arguments;
-    return this.replace(/\{(\d+)\}/g, function(m,n){
-        return args[n] ? args[n] : m;
-    });
-};
+logger.info = function(message) {
+    logger.log('info', message);
+}
+
+logger.error = function(message) {
+    logger.log('error', message);
+}
+
 
 module.exports = logger;
