@@ -3,7 +3,7 @@ const utils = require('./utils');
 const logger = require('./logger');
 const db = require('./db');
 const lc = require('./locale');
-const util = require('./utils'); 
+const util = require('util');
 
 
 const telegraf = require('telegraf');
@@ -39,7 +39,7 @@ bot.start((ctx) => {
 });
 
 function sendInvite(id) {
-  db.find(id, (err, rows) => {
+  db.users.find(id, (err, rows) => {
     if (err) {
       logger.error(err.message);
       return;
@@ -65,7 +65,7 @@ function replyTo(ctx, message) {
 }
 
 bot.command(['pay', 'pay@{0}'.format(config.botDomain)], (ctx) => {
-  db.find(ctx.from.id, (err, rows) => {
+  db.users.find(ctx.from.id, (err, rows) => {
     if (err) {
       logger.error(err.message);
       return;
@@ -82,7 +82,7 @@ bot.command(['pay', 'pay@{0}'.format(config.botDomain)], (ctx) => {
     }
 
     if (user === undefined) {
-      db.save(ctx.from.id, (err) => {
+      db.users.insert(ctx.from.id, (err) => {
         if (err) {
           logger.error(err.message);
         }
@@ -121,12 +121,41 @@ bot.on('text', (ctx) => {
   return ctx.telegram.sendMessage(id, lc.splash, repliedMessage);
 });
 
+bot.on(['group_chat_created', 'new_chat_members'], (ctx) => {
+  let members = ctx.update.message.new_chat_members;
+  let bot_entered = false;
+
+  if (members !== undefined) {
+    let i;
+    for (i = 0; i < members.length; i++) {
+      if (members[i].username === config.botDomain) {
+        bot_entered = true;
+      }
+    }
+  }
+
+  if (ctx.group_chat_created || bot_entered) {
+    let promise = bot.telegram.getChatAdministrators(ctx.chat.id);
+    promise.then((users) => {
+      users.forEach((user) => {
+        if (user.status === 'creator') {
+          // TODO db.add to ref system
+
+          bot.telegram.sendMessage(user.user.id, 'you_was_added_to_ref_system');
+        }
+      });
+    });
+  }
+});
+
+
+
 http.createServer((req, res) => {
   let params = req.url.split('/');
   let id = parseInt(params[1]);
 
   if (params[2] === config.httpToken && !isNaN(id)) {
-    db.update(id, true, (err) => {
+    db.users.update(id, true, (err) => {
       if (err) {
         logger.error(err.message);
         return;

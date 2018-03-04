@@ -11,7 +11,7 @@ const pool = new mysql.createPool({
 
 const db = {};
 
-db.find = (id, callback) => {
+function query(sql, params, callback) {
   pool.getConnection((err, con) => {
     if (err) {
       logger.error(err.message);
@@ -19,8 +19,7 @@ db.find = (id, callback) => {
       return;
     }
 
-    let sql = 'SELECT `id`, `is_paid` FROM `tlgrm_users` WHERE `id` = ?';
-    con.query(sql, [id], (err, rows) => {
+    con.query(sql, params, (err, rows) => {
         con.release();
         if (err) {
           logger.error(err.message);
@@ -32,60 +31,22 @@ db.find = (id, callback) => {
       }
     );
   });
+}
+
+db.users = {};
+db.users.insert = (id, callback) => {
+  let sql = 'INSERT INTO `tlgrm_users` (`id`, `is_paid`) VALUES (?, ?)';
+  query(sql, [id, false], callback);
 };
 
-db.save = (id, callback) => {
-  db.find(id, (err, rows) => {
-    if (err) {
-      logger.error(err.message);
-      callback(err);
-      return;
-    }
-    if (rows.length !== 0) {
-      return;
-    }
-
-    pool.getConnection((err, con) => {
-      if (err) {
-        logger.error(err.message);
-        callback(err);
-        return;
-      }
-      let sql = 'INSERT INTO `tlgrm_users` (`id`, `is_paid`) VALUES (?, ?)';
-      con.query(sql, [id, false], (err, rows) => {
-          con.release();
-          if (err) {
-            logger.error(err);
-            callback(err);
-            return;
-          }
-
-          callback(null, rows);
-        }
-      );
-    });
-  });
+db.users.find = (id, callback) => {
+  let sql = 'SELECT `id`, `is_paid` FROM `tlgrm_users` WHERE `id` = ?';
+  query(sql, [id], callback);
 };
 
-db.update = (id, is_paid, callback) => {
-  pool.getConnection((err, con) => {
-    if (err) {
-      logger.error(err.message);
-      callback(err);
-      return;
-    }
-    let sql = 'UPDATE `tlgrm_users` SET `is_paid` = ? WHERE `id` = ?';
-    con.query(sql, [is_paid, id], (err, rows) => {
-      con.release();
-      if (err) {
-        logger.error(err.message);
-        callback(err);
-        return;
-      }
-
-      callback(null, rows);
-    });
-  });
+db.users.update = (id, is_paid, callback) => {
+  let sql = 'UPDATE `tlgrm_users` SET `is_paid` = ? WHERE `id` = ?';
+  query(sql, [is_paid, id], callback);
 };
 
 db.end = () => pool.end();
