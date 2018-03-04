@@ -1,7 +1,12 @@
-var config = {};
+const config = {};
 
+/*
 config.botToken = '500824875:AAH8FAKzrxhDgpDL6sOa3CFD3bZYPuqnG74';
 config.botDomain = 'livefood_bot';
+*/
+
+config.botToken = '470912859:AAE_kgtGhN4CTytMj2ScYYfZ8n9YG3Dh4xE';
+config.botDomain = 'gladoss_bot';
 config.inviteLink = 'https://t.me/joinchat/Ff6qslGKXErGsxAPDzpsqw';
 
 config.logDateFormat = 'DD-MM-YYYY hh:mm:ss';

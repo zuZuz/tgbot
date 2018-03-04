@@ -1,54 +1,92 @@
-var config = require('./config');
-var mysql = require('mysql');
+const config = require('./config');
+const mysql = require('mysql');
+const logger = require('./logger');
 
-var con = new mysql.createConnection({
-    host: config.dbHost,
-    user: config.dbUser,
-    password: config.dbPass,
-    database: config.dbName
+const pool = new mysql.createPool({
+  host: config.dbHost,
+  user: config.dbUser,
+  password: config.dbPass,
+  database: config.dbName
 });
 
-var db = {};
+const db = {};
 
 db.find = (id, callback) => {
-    var res = con.query(
-        'SELECT `id`, `is_paid` FROM `tlgrm_users` WHERE `id` = ?', 
-        [id],
-        callback
+  pool.getConnection((err, con) => {
+    if (err) {
+      logger.error(err.message);
+      callback(err);
+      return;
+    }
+
+    let sql = 'SELECT `id`, `is_paid` FROM `tlgrm_users` WHERE `id` = ?';
+    con.query(sql, [id], (err, rows) => {
+        con.release();
+        if (err) {
+          logger.error(err.message);
+          callback(err);
+          return;
+        }
+
+        callback(null, rows);
+      }
     );
+  });
 };
 
 db.save = (id, callback) => {
-
-    if (db.find(id) != undefined) {
-        return;
+  db.find(id, (err, rows) => {
+    if (err) {
+      logger.error(err.message);
+      callback(err);
+      return;
+    }
+    if (rows.length !== 0) {
+      return;
     }
 
-    con.query(
-        'INSERT INTO tlgrm_users (id, is_paid) VALUES (?, ?)', 
-        [id, false]
-    );
+    pool.getConnection((err, con) => {
+      if (err) {
+        logger.error(err.message);
+        callback(err);
+        return;
+      }
+      let sql = 'INSERT INTO `tlgrm_users` (`id`, `is_paid`) VALUES (?, ?)';
+      con.query(sql, [id, false], (err, rows) => {
+          con.release();
+          if (err) {
+            logger.error(err);
+            callback(err);
+            return;
+          }
+
+          callback(null, rows);
+        }
+      );
+    });
+  });
 };
 
 db.update = (id, is_paid, callback) => {
-    con.query(
-        'UPDATE `tlgrm_users` SET `is_paid` = ? WHERE `id` = ?',
-        [is_paid, id],
-        callback
-    );
+  pool.getConnection((err, con) => {
+    if (err) {
+      logger.error(err.message);
+      callback(err);
+      return;
+    }
+    let sql = 'UPDATE `tlgrm_users` SET `is_paid` = ? WHERE `id` = ?';
+    con.query(sql, [is_paid, id], (err, rows) => {
+      con.release();
+      if (err) {
+        logger.error(err.message);
+        callback(err);
+        return;
+      }
+
+      callback(null, rows);
+    });
+  });
 };
 
-setInterval(() => {
-    con.query(
-        'SELECT 1',
-        (err, rows) => {
-            if (err) {
-                logger.error(err.message);
-            }
-        }
-    )
-}, 60000);
-
-db.connect = con.connect;
-db.end = () => con.end();
+db.end = () => pool.end();
 module.exports = db;
