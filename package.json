@@ -4,6 +4,7 @@
   "description": "",
   "main": "bot.js",
   "dependencies": {
+    "dotenv": "^5.0.1",
     "http": "0.0.0",
     "moment": "^2.20.1",
     "mysql": "^2.15.0",
