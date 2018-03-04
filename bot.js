@@ -90,9 +90,15 @@ bot.command(['pay', 'pay@{0}'.format(config.botDomain)], (ctx) => {
             });
         }
 
-        return replyTo(ctx, lc.invoiceMessage.format(
-            config.invoiceLink.format(ctx.from.id)));
-    });
+        const e = extra.markup(markup.inlineKeyboard([
+            markup.urlButton('Яндекс.Касса', config.invoiceLink.format(ctx.from.id)),
+            markup.urlButton('Робокасса', config.invoiceRK.format(ctx.from.id))
+        ]));
+        e.caption = 'Invoice Link';
+	
+        
+        return bot.telegram.sendMessage(ctx.from.id, lc.invoiceMessage, e);
+     });
 });
 
 bot.command(['invite', 'invite@{0}'.format(config.botDomain)], (ctx) => {
@@ -114,6 +120,7 @@ bot.on('text', (ctx) => {
 });
 
 http.createServer((req, res) => {
+    console.log(req.url);
     var params = req.url.split('/');
     var id = parseInt(params[1]);
 

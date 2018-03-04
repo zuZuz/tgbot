@@ -1,7 +1,7 @@
 const locale = {};
 
 /* текст, отправляющийся пользователю по команде старт */
-locale.start = "Welcome!\nYou're new";
+locale.start = "Приветствую! Вы новенький :) Напишите /pay для оплаты участия в нашей группе!";
 
 /* текст на кнопке */
 locale.button = "❤ Клик ❤";
@@ -28,6 +28,6 @@ locale.splash = "Пожалуйста, используйте команды /pa
  * {0} - ссылка 
  */
  
-locale.invoiceMessage = 'Ссылка для оплаты:\n{0}\nВы будете перенаправлены на Яндекс.кассу для оплаты.\n' + locale.warning;
+locale.invoiceMessage = 'Для оплаты выберете ниже платежную систему и нажмите соответствующую кнопку.\n' + locale.warning;
 
 module.exports = locale;

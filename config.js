@@ -1,15 +1,15 @@
 var config = {};
 
-config.botToken = '450501214:AAEYNUBus3yB-bTBFowPcAOiOUSKfecXXHU';
-//config.botToken = '470912859:AAE_kgtGhN4CTytMj2ScYYfZ8n9YG3Dh4xE';
-config.botDomain = 'chathuac_bot';
-config.inviteLink = 'https://t.me/joinchat/H6k7KQ8fMExCeHF5QCyY9A';
+config.botToken = '500824875:AAH8FAKzrxhDgpDL6sOa3CFD3bZYPuqnG74';
+config.botDomain = 'livefood_bot';
+config.inviteLink = 'https://t.me/joinchat/Ff6qslGKXErGsxAPDzpsqw';
 
 config.logDateFormat = 'DD-MM-YYYY hh:mm:ss';
 config.logFile = 'bot.log';
 config.logLevel = 'info';
 
-config.invoiceLink = 'https://livefood.store/redir.php?id={0}';
+config.invoiceLink = 'https://livefood.store/?tg_id={0}';
+config.invoiceRK = 'https://livefood.store/?ps=rk&tg_id={0}';
 
 config.dbHost = '176.57.208.72';
 config.dbUser = 'responder';
