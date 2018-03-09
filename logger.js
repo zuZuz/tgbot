@@ -25,11 +25,11 @@ const logger = new winston.Logger({
   ]
 });
 
-logger.info = function(message) {
+logger.info = (message) => {
   logger.log('info', message);
 };
 
-logger.error = function(message) {
+logger.error = (message) => {
   logger.log('error', message);
 };
 

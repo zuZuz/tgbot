@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/styles.css">
+    <title>Login</title>
+</head>
+<body>
+<div class="login-page">
+    <div class="form">
+        <form class="login-form" id="login" action="/login" method="post">
+            <input class="form-control" name="name" type="text" placeholder="username"/>
+            <input class="form-control" name="pass" type="password" placeholder="password"/>
+            <input type="submit" value="Войти" class="btn btn-success">
+        </form>
+        <span id="good">&nbsp;</span><span id="bad">&nbsp;</span>
+    </div>
+</div>
+<script type="text/javascript">
+  $(document).ready(function () {
+    function fade(success, text) {
+      let el = success ? 'good' : 'bad';
+      $(`#${el}`).fadeIn().text(text).fadeOut(1600);
+    }
+
+    $('#login').submit(function(event) {
+      event.preventDefault();
+      $.post('/login', {
+        name: $('input[name=name]').val(),
+        pass: $('input[name=pass]').val(),
+      }).done(function(data) {
+        if(JSON.parse(data).status) {
+          location.reload();
+        } else {
+          fade(false, 'Неверный логин или пароль');
+        }
+      });
+    });
+  });
+</script>
+</body>
+</html>

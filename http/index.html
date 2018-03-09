@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/styles.css">
+    <title>Настройки</title>
+</head>
+<body>
+<div id="main">
+    <h2>Панель управления ботом</h2>
+    <h4><b>Настройки</b> | <a href="/bonuses">Бонусы</a></h4>
+    <form method="post" action="/settings" id="settings">
+        <table cellpadding="0" cellspacing="0">
+            <thead><tr><td></td><td><b>Название</b></td><td><b>Значение</b></td></tr></thead><tbody>
+        <tr><td></td><td>Сумма для оплаты</td>
+            <td><input class="form-control" name="amount" type="text" /></td></tr>
+        <tr><td></td><td>Скидка в %</td>
+            <td><input class="form-control" name="discount" type="text" /></td></tr>
+        <tr><td></td><td>Бонус для 1 уровня в %</td>
+            <td><input class="form-control" name="lvl1" type="text" /></td></tr>
+        <tr><td></td><td>Бонус для 2 уровня в %</td>
+            <td><input class="form-control" name="lvl2" type="text" /></td></tr>
+        <tr><td></td><td><span id="good"></span><span id="bad"></span></td>
+            <td>
+                <input type="submit" value="сохранить" class="btn btn-primary"/>
+            </td></tr>
+        </tbody></table>
+    </form>
+
+    <script type="text/javascript">
+      $(document).ready(function () {
+        $("#settings").submit(function(event) {
+          event.preventDefault();
+          $.post('/settings', {
+            amount: $('input[name=amount]').val(),
+            discount: $('input[name=discount]').val()
+          }).done(function(data) {
+            let lvl1 = $('input[name=lvl1]').val();
+            let lvl2 = $('input[name=lvl2]').val();
+            $.getJSON('/setlvl?lvl=1&bonus='+ lvl1, function () {});
+            $.getJSON('/setlvl?lvl=2&bonus='+ lvl2, function () {});
+
+            if(!JSON.parse(data).error) {
+              $('#good').fadeIn();
+              $('#good').text('Сохранено').fadeOut(3000);
+            } else {
+              $('#bad').fadeIn();
+              $('#bad').text('Ошибка').fadeOut(3000);
+            }
+          });
+        });
+
+        $.getJSON('/settings/', function (data) {
+          $('input[name=amount]').val(data.amount);
+          $('input[name=discount]').val(data.discount);
+        });
+
+        $.getJSON('/getlvl', function (data) {
+          $('input[name=lvl1]').val(data[0].bonus);
+          $('input[name=lvl2]').val(data[1].bonus);
+        });
+      });
+    </script>
+</div>
+</body>
+</html>

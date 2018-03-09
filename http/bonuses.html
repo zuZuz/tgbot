@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/styles.css">
+    <title>Бонусы</title>
+</head>
+<body>
+    <h2>Панель управления ботом</h2>
+    <h4><a href="/">Настройки</a> | <b>Бонусы</b></h4>
+    <table cellpadding="0" cellspacing="0" id="bonuses">
+        <thead><tr>
+            <td><b>Ид реферера</b></td>
+            <td><b>Накоплено бонусов</b></td>
+            <td><b>Выплачено</b></td>
+        </tr></thead>
+        <tbody id="bonuses_body">
+        </tbody>
+    </table>
+    <script type="text/javascript">
+        $(document).ready(function onReady() {
+          $.getJSON('/refs', function onLoad(refs) {
+            console.log(refs);
+            for (let i = 0; i < refs.length; i++) {
+              let r = refs[i];
+              let row = `<tr><td>${r.id}</td><td>${r.amount.toFixed(2)}</td><td>${r.paid_out.toFixed(2)}</td></tr>`;
+              $('#bonuses_body').append(row);
+            }
+          })
+        });
+    </script>
+</body>
+</html>
