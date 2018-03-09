@@ -10,6 +10,10 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const app = express();
 
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'static')));
+app.set('port', config.httpPort);
 app.use(session({
   secret: 'lkjg123h4g123',
   saveUninitialized: false,
@@ -19,18 +23,14 @@ app.use(session({
   }
 }));
 
-app.use(bodyParser.urlencoded({extended: false}));
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'static')));
-app.set('port', config.httpPort);
-
 app.post('/login', function (req, res) {
   if (req.body.pass === config.httpPass &&
     req.body.name === config.httpName) {
     req.session.authed = true;
     res.send(JSON.stringify({status: true}));
+  } else {
+    res.send(JSON.stringify({status: false}));
   }
-  res.send(JSON.stringify({status: false}));
 });
 
 app.get('/pay', function pay(req, res) {
@@ -80,6 +80,14 @@ app.get('/getsum', function ref(req, res) {
       res.send(JSON.stringify({id: id, sum: sum}));
     });
   });
+});
+
+app.get('/', function (req, res) {
+  if (req.session.authed) {
+    res.sendFile(__dirname + '/index.html');
+  } else {
+    res.sendFile(__dirname + '/login.html');
+  }
 });
 
 app.all('*', function(req, res, next) {
@@ -166,12 +174,8 @@ app.get('/refs', function refs (req, res) {
   });
 });
 
-app.get('/', function (req, res) {
-  res.sendFile(__dirname + '/index.html');
-});
-
-app.get('/settings', function(req, res) {
-  res.sendFile(__dirname + '/settings.html');
+app.get('/bonuses', function (req, res) {
+  res.sendFile(__dirname + '/bonuses.html');
 });
 
 module.exports = app;

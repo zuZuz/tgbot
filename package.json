@@ -4,7 +4,10 @@
   "description": "",
   "main": "bot.js",
   "dependencies": {
+    "body-parser": "^1.18.2",
     "dotenv": "^5.0.1",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
     "http": "0.0.0",
     "moment": "^2.20.1",
     "mysql": "^2.15.0",
