@@ -80,38 +80,18 @@ bot.on(
 
     db.bonuses.find(creator.id, function onFind(err, rows) {
       if (rows.length !== 0) {
-        bot.telegram.sendMessage(creator.id, 'already_reg_in_ref_system');
+        bot.telegram.sendMessage(creator.id, 'Группа успешно добавлена');
         return;
       }
       db.bonuses.insert(creator.id, function onInsertError (err) {
         if (err) {
           return;
         }
-        bot.telegram.sendMessage(creator.id, 'new_ref_member');
+        bot.telegram.sendMessage(creator.id, 'Вы зарегистрированы как реферер');
       });
     });
   });
 });
-
-/*
-http.createServer(function serveWebRequest (req, res) {
-  let params = req.url.split('/');
-  let id = parseInt(params[1]);
-
-  if (params[2] === config.httpToken && !isNaN(id)) {
-    db.users.update(id, true, function onUpdateError (err) {
-      if (err) {
-        logger.error(err.message);
-        return;
-      }
-
-      tgutils.sendInvite(id);
-    });
-  }
-
-  res.end();
-}).listen(config.httpPort);
-*/
 
 app.listen(app.get('port'), function http () {
   logger.info('starting http');
