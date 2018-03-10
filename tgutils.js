@@ -44,7 +44,7 @@ tgutils.sendToChat = (ctx, text) => {
 tgutils.isBotEntered = (ctx) => {
   let members = ctx.update.message.new_chat_members;
   if (members === undefined) {
-    return false;
+    return ctx.update.message.group_chat_created !== undefined;
   }
 
   let bot = members.find(function findBot(obj) {

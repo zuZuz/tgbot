@@ -85,6 +85,7 @@ bot.on(
       }
       db.bonuses.insert(creator.id, function onInsertError (err) {
         if (err) {
+          logger.info(creator.id);
           return;
         }
         bot.telegram.sendMessage(creator.id, 'Вы зарегистрированы как реферер');

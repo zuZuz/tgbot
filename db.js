@@ -68,13 +68,13 @@ db.referrals.update = () => {
 
 db.bonuses = {};
 db.bonuses.insert = (id, callback) => {
-  let sql = 'INSERT INTO `bonuses` (`id`, `amount`) VALUES (?, 0, 0)';
+  let sql = 'INSERT INTO `bonuses` (`id`, `amount`, `paid_out`) VALUES (?, 0, 0)';
   query(sql, id, callback);
 };
 
-db.bonuses.find = (offset, callback) => {
+db.bonuses.find = (callback) => {
   let sql = 'SELECT * FROM `bonuses`';
-  query(sql, offset, callback);
+  query(sql, null, callback);
 };
 
 db.bonuses.findOne = (id, callback) => {
