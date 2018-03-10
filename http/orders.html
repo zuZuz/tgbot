@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="/styles.css">
+    <title>Заказы платежей</title>
+</head>
+<body>
+<h2>Панель управления ботом</h2>
+<h4><a href="/">Настройки</a> | <a href="/bonuses">Список рефереров</a> | <b>Заказы платежей</b></h4>
+<table cellpadding="0" cellspacing="0" id="orders">
+    <thead><tr>
+        <td><b>Ид реферера</b></td>
+        <td><b>Имя фамилия</b></td>
+        <td><b>Дата</b></td>
+        <td><b>Сумма к выплате</b></td>
+        <td></td><td>Статус</td>
+    </tr></thead>
+    <tbody id="bonuses_body">
+    </tbody>
+</table>
+<script type="text/javascript">
+  $(document).ready(function onReady() {
+    $.pay =  function (id) {
+      console.log(id);
+      $.getJSON('/payout?id=' + id, function onLoad(data) {
+        console.log(data);
+        if (data.status) {
+          $(`#${id}`).text('Исполнено');
+          $(`#b${id}`).replaceWith('<span></span>');
+        } else {
+          $(`#${id}`).text(data.error);
+        }
+      });
+    };
+
+    $.getJSON('/orders_list', function onLoad(refs) {
+      for (let i = 0; i < refs.length; i++) {
+        let r = refs[i];
+        r.date = r.date.split('.')[0].replace('T', ' ').replace(/-/g, '.');
+        let row = `<tr><td>${r.id}</td><td>${r.first_name} ${r.last_name}</td>` +
+          `<td>${r.date}</td><td>${r.sum.toFixed(2)}</td>`+
+          `<td><button type="button" id="b${r._id}" class="btn btn-primary" onclick="$.pay(${r._id});">Выплатить</button</td><td><span id="${r._id}"></span></td></tr>`;
+        $('#bonuses_body').append(row);
+      }
+    });
+  });
+</script>
+</body>
+</html>

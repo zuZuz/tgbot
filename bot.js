@@ -48,8 +48,23 @@ bot.command(
 );
 
 bot.command(
+  ['refs', 'refs@{0}'.format(config.botDomain)],
+  commands.refs
+);
+
+bot.command(
   ['amount', 'amount@{0}'.format(config.botDomain)],
   commands.amount
+);
+
+bot.command(
+  ['bind', 'bind@{0}'.format(config.botDomain)],
+  commands.bind
+);
+
+bot.command(
+  ['payout', 'payout@{0}'.format(config.botDomain)],
+  commands.payout
 );
 
 bot.on('text', function onText (ctx) {
@@ -89,6 +104,28 @@ bot.on(
           return;
         }
         bot.telegram.sendMessage(creator.id, 'Вы зарегистрированы как реферер');
+      });
+
+      db.users.find(creator.id, function onFind(err, rows) {
+        if (err) {
+          return;
+        }
+
+        let fn;
+        if (rows.length === 0) {
+          logger.info('insert');
+          fn = db.users.insert;
+        }
+        else {
+          fn = db.users.update;
+        }
+
+        fn(
+          creator.id,
+          creator.first_name,
+          creator.last_name,
+          (err) => {}
+        )
       });
     });
   });

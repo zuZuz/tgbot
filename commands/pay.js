@@ -20,9 +20,11 @@ function onPayCommand (ctx) {
         replyTo(ctx, lc.alreadyPaid) : ctx.reply(lc.alreadyPaid);
     }
 
+    let first = ctx.from.first_name;
+    let last = ctx.from.last_name;
+
     if (users[0] === undefined) {
-      db.users.insert(userId, function onInsertError(err) {
-      });
+      db.users.insert(userId, first, last, function onInsertError(err) {});
     }
 
     if (ctx.chat.id < 0) {

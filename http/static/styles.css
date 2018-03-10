@@ -56,3 +56,11 @@ thead>tr>td {
 #bonuses td {
     text-align: right;
 }
+
+#orders tr, #orders td {
+    border: 1px solid black;
+}
+
+#orders td {
+    text-align: right;
+}

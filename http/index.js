@@ -6,6 +6,7 @@ const express = require('express');
 const path = require('path');
 const db = require('../db');
 const session = require('express-session');
+const Qiwi = require('qiwi-wallet-sdk').Qiwi;
 
 const bodyParser = require('body-parser');
 const app = express();
@@ -59,7 +60,7 @@ app.get('/pay', function pay(req, res) {
 
 app.get('/getsum', function ref(req, res) {
   let id = req.query.id;
-  db.referrals.find(id, function onFind (err, rows) {
+  db.referrals.findOne(id, function onFind (err, rows) {
     if (err) {
       res.send(JSON.stringify({error: 'internal error'}));
       return;
@@ -173,8 +174,57 @@ app.get('/refs', function refs (req, res) {
   });
 });
 
+app.get('/orders_list', function ordersList(req, res) {
+  db.orders.find(function onFind (err, rows) {
+    if (err) {
+      res.send(JSON.stringify({error: 'internal error'}));
+    } else {
+      res.send(JSON.stringify(rows));
+    }
+  })
+});
+
+app.get('/payout', function payout(req, res) {
+  let id = req.query.id;
+  db.settings.find(function onFind(err, rows) {
+    if (err) {
+      return;
+    }
+
+    let token = rows[0].qiwi_token;
+    if (token === '') {
+      res.send(JSON.stringify({error: 'no token'}));
+      return;
+    }
+    db.query('SELECT * FROM `orders`, `bonuses` ' +
+      'WHERE orders._id = ? AND orders.id = bonuses.id', id, (err, rows) => {
+      if (err) {
+        res.send(JSON.stringify({error: 'internal error'}));
+        return;
+      }
+
+      let qiwi = new Qiwi(token);
+      qiwi.sendToWallet(rows[0].phone, rows[0].sum, '')
+        .then(response => {
+            res.send(JSON.stringify({status: 'success'}))
+            db.orders.update(id, 1, (err) => {
+              if (err) {
+                res.send(JSON.stringify({error: 'internal error'}));
+              }
+            })
+          }
+        )
+        .catch(error => res.send(JSON.stringify({error: error.message})));
+    });
+  });
+});
+
 app.get('/bonuses', function (req, res) {
   res.sendFile(__dirname + '/bonuses.html');
+});
+
+app.get('/orders', function (req, res) {
+  res.sendFile(__dirname + '/orders.html');
 });
 
 module.exports = app;
