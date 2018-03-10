@@ -164,8 +164,7 @@ app.get('/settings', function get (req, res) {
 });
 
 app.get('/refs', function refs (req, res) {
-  let offset = req.query.offset ? req.query.offset : 0;
-  db.bonuses.find(offset, function onFind(err, rows) {
+  db.bonuses.find(function onFind(err, rows) {
     if (err) {
       res.send(JSON.stringify({error: 'internal error'}));
     } else {
