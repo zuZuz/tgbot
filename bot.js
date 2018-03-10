@@ -78,7 +78,7 @@ bot.on(
       return;
     }
 
-    db.bonuses.find(creator.id, function onFind(err, rows) {
+    db.bonuses.findOne(creator.id, function onFind(err, rows) {
       if (rows.length !== 0) {
         bot.telegram.sendMessage(creator.id, 'Группа успешно добавлена');
         return;

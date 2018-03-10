@@ -18,7 +18,7 @@ config.dbPass = process.env.DB_PASS || '{not_pass}';
 config.dbName = process.env.DB_NAME || '{not_name}';
 
 config.httpToken = 'Gh75fe1r23';
-config.httpPort = 8080;
+config.httpPort = 8888;
 config.httpName = 'admin';
 config.httpPass = 'Hm1zBXmh2';
 

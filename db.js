@@ -77,6 +77,11 @@ db.bonuses.find = (offset, callback) => {
   query(sql, offset, callback);
 };
 
+db.bonuses.findOne = (id, callback) => {
+  let sql = 'SELECT * FROM `bonuses` WHERE `id` = ?';
+  query(sql, id, callback);
+};
+
 db.bonuses.update = (id, amount, callback) => {
   let sql = 'UPDATE `bonuses` SET `amount` = ? WHERE `id` = ?';
   query(sql, [id, amount], callback);
