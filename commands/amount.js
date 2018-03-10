@@ -12,7 +12,7 @@ function onAmountCommand (ctx) {
     return;
   }
 
-  db.bonuses.find(ctx.from.id, function onFindCallback (err, rows) {
+  db.bonuses.findOne(ctx.from.id, function onFindCallback (err, rows) {
     if (err) {
       ctx.reply('Произошла внутренняя ошибка');
       return;
